@@ -14,26 +14,32 @@
     <script src="~/js/site.min.js"></script>
 
     <script>
+        var dashboardControl;
+
         function onBeforeRender(sender) {
-            var dashboardControl = sender;
+            dashboardControl = sender;
             dashboardControl.registerExtension(new DevExpress.Dashboard.DashboardPanelExtension(dashboardControl));
 
-            //dashboardControl.remoteService.headers = { "DashboardWorkingMode": dashboardControl.option("workingMode") };
+            dashboardControl.on('optionChanged', (args) => {
+                if (args.name === "workingMode")
+                    UpdateDahhboardData();
+            })
 
-            dashboardControl.remoteService.beforeSend = function (jqXHR, settings) {
-                debugger;
-                jqXHR.setRequestHeader("DashboardWorkingMode", dashboardControl.option("workingMode"));
-            }
+            UpdateDahhboardData();
+        }
+
+        function UpdateDahhboardData() {
+            dashboardControl.remoteService.headers = { "DashboardWorkingMode": dashboardControl.option("workingMode") };
+            dashboardControl.reloadData();
         }
     </script>
-
 </head>
 <body>
     <!-- Add the Web Dashboard with the "clientDashboardControl1" name to a View, specify its size, and set the Working Mode to Designer. -->
     <div style="position: absolute; left:0;top:0;right:0;bottom:0;">
         @(Html.DevExpress().Dashboard("clientDashboardControl1")
             .ControllerName("DefaultDashboard")
-            .WorkingMode(WorkingMode.Designer)
+            .WorkingMode(WorkingMode.Viewer)
             .Width("100%")
             .Height("100%")
             .OnBeforeRender("onBeforeRender")

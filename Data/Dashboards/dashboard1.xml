@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Dashboard>
-  <Title Text="New Dashboard" />
+  <Title Text="Dashboard1 (SqlDataSource)" />
   <DataSources>
     <SqlDataSource Name="Categories" ComponentName="sqlDataSource1">
       <Connection Name="nwind" FromAppConfig="true" />
