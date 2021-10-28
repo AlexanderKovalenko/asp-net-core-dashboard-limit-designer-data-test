@@ -22,13 +22,13 @@
 
             dashboardControl.on('optionChanged', (args) => {
                 if (args.name === "workingMode")
-                    UpdateDahhboardData();
+                    UpdateDashboardData();
             })
 
-            UpdateDahhboardData();
+            UpdateDashboardData();
         }
 
-        function UpdateDahhboardData() {
+        function UpdateDashboardData() {
             dashboardControl.remoteService.headers = { "DashboardWorkingMode": dashboardControl.option("workingMode") };
             dashboardControl.reloadData();
         }
