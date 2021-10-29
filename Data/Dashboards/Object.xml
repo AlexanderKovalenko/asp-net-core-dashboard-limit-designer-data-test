@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Dashboard>
-  <Title Text="Dashboard 2 (ObjectDataSource)" />
+  <Title Text="ObjectDataSource Dashboard" />
   <DataSources>
-    <ObjectDataSource Name="Invoices" ComponentName="objectDataSource1" />
+    <ObjectDataSource Name="Invoices" ComponentName="objectDataSource1" DataId="odsInvoices" />
   </DataSources>
   <Items>
     <Grid ComponentName="gridDashboardItem1" Name="Grid 1" DataSource="objectDataSource1">

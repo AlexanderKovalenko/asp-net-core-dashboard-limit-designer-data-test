@@ -23,9 +23,9 @@
             dashboardControl.on('optionChanged', (args) => {
                 if (args.name === "workingMode")
                     UpdateDashboardData();
-            })
+            });
 
-            UpdateDashboardData();
+            dashboardControl.remoteService.headers = { "DashboardWorkingMode": "Designer" };
         }
 
         function UpdateDashboardData() {
@@ -39,10 +39,10 @@
     <div style="position: absolute; left:0;top:0;right:0;bottom:0;">
         @(Html.DevExpress().Dashboard("clientDashboardControl1")
             .ControllerName("DefaultDashboard")
-            .WorkingMode(WorkingMode.Viewer)
             .Width("100%")
             .Height("100%")
             .OnBeforeRender("onBeforeRender")
+            .Extensions(ext => ext.DataSourceWizard(wiz => wiz.EnableCustomSql(true)))
         )
     </div>
 </body>

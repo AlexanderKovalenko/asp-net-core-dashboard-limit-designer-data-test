@@ -37,6 +37,8 @@ namespace WebDashboardAspNetCore {
                 configurator.SetDashboardStorage(new DashboardFileStorage(FileProvider.GetFileInfo("Data/Dashboards").PhysicalPath));
                 configurator.SetConnectionStringsProvider(new DashboardConnectionStringsProvider(Configuration));
 
+                configurator.AllowExecutingCustomSql = true;
+
                 DataSourceInMemoryStorage dataSourceStorage = new DataSourceInMemoryStorage();
 
                 // Registers an SQL data source.
@@ -48,8 +50,20 @@ namespace WebDashboardAspNetCore {
                 sqlDataSource.Queries.Add(query);
                 dataSourceStorage.RegisterDataSource("sqlDataSource", sqlDataSource.SaveToXml());
 
+                DashboardSqlDataSource sqlDataSourceCustomSQL = new DashboardSqlDataSource("Products", "NWindConnectionString");
+                CustomSqlQuery queryCustomSQL = new CustomSqlQuery() {
+                    Name = "queryCustomSQL",
+                    Sql = "SELECT ProductID, ProductName FROM Products WHERE ProductID <= @queryParamTopID"
+                };
+
+                queryCustomSQL.Parameters.Add(new QueryParameter("queryParamTopID", typeof(DevExpress.DataAccess.Expression),
+                    new DevExpress.DataAccess.Expression("[Parameters.DashboarParamTopID]")));
+
+                sqlDataSourceCustomSQL.Queries.Add(queryCustomSQL);
+                dataSourceStorage.RegisterDataSource("sqlDataSourceCustom", sqlDataSourceCustomSQL.SaveToXml());
+
                 // Registers an Object data source.
-                DashboardObjectDataSource objDataSource = new DashboardObjectDataSource("Invoices");
+                DashboardObjectDataSource objDataSource = new DashboardObjectDataSource("Invoices") { DataId = "odsInvoices" } ;
                 dataSourceStorage.RegisterDataSource("objDataSource", objDataSource.SaveToXml());
 
                 configurator.SetDataSourceStorage(dataSourceStorage);
@@ -59,7 +73,7 @@ namespace WebDashboardAspNetCore {
                     var contextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
                     var workingMode = contextAccessor.HttpContext.Request.Headers["DashboardWorkingMode"];
 
-                    if (e.DataSourceName == "Invoices") {
+                    if (e.DashboardId == "Object" && e.DataId == "odsInvoices") {
                         var data = Invoices.CreateData();
 
                         if (workingMode == "Designer")
@@ -74,9 +88,21 @@ namespace WebDashboardAspNetCore {
                     var contextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
                     var workingMode = contextAccessor.HttpContext.Request.Headers["DashboardWorkingMode"];
 
-                    if (e.DashboardId == "dashboard1" && e.QueryName == "Categories") {
+                    if (e.DashboardId == "SQL" && e.QueryName == "Categories") {
                         if (workingMode == "Designer")
                             e.FilterExpression = CriteriaOperator.Parse("[Categories.CategoryID] = 1");
+                    }
+                };
+
+                // Applies dynamic filter in the Designer working mode for the DashboardSqlDataSource (Custom SQL Query).
+                configurator.CustomParameters += (s, e) => {
+                    var contextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
+                    var workingMode = contextAccessor.HttpContext.Request.Headers["DashboardWorkingMode"];
+
+                    if (e.DashboardId == "SQL (Custom)") {
+                        var topID = (workingMode == "Designer" ? 3 : 1000);
+                        
+                        e.Parameters.Add(new DevExpress.DataAccess.Parameter("DashboarParamTopID", typeof(int), topID));
                     }
                 };
 
